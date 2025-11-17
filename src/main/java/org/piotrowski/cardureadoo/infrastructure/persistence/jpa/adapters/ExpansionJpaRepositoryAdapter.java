@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.piotrowski.cardureadoo.application.port.out.ExpansionRepository;
 import org.piotrowski.cardureadoo.domain.model.Expansion;
 import org.piotrowski.cardureadoo.domain.model.value.expansion.ExpansionExternalId;
+import org.piotrowski.cardureadoo.domain.model.value.expansion.ExpansionName;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.mapper.ExpansionMapper;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.repositories.ExpansionJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -51,4 +52,14 @@ public class ExpansionJpaRepositoryAdapter implements ExpansionRepository {
 
     @Override public int deleteByExternalId(String externalId) { return expansionJpa.deleteByExternalId(externalId); }
 
+    @Override
+    @Transactional
+    public void patch(ExpansionExternalId id, ExpansionName name) {
+        var e = expansionJpa.findByExternalId(id.value())
+                .orElseThrow(() -> new IllegalStateException("Expansion not found: " + id.value()));
+
+        if (name != null) {
+            e.rename(name.value());
+        }
+    }
 }

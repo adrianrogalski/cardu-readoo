@@ -25,5 +25,9 @@ public interface ExpansionService {
     @Transactional
     int deleteByName(String name);
 
+    @Transactional
+    void patch(String externalId, PatchExpansionCommand cmd);
+
     record UpsertExpansionCommand(String externalId, String name) {}
+    record PatchExpansionCommand(String name) {}
 }

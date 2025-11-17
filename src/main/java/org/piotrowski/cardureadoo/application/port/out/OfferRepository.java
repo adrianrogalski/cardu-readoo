@@ -3,6 +3,7 @@ package org.piotrowski.cardureadoo.application.port.out;
 import org.piotrowski.cardureadoo.domain.model.Offer;
 import org.piotrowski.cardureadoo.domain.model.value.card.CardNumber;
 import org.piotrowski.cardureadoo.domain.model.value.expansion.ExpansionExternalId;
+import org.piotrowski.cardureadoo.domain.model.value.offer.Money;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,6 +17,7 @@ public interface OfferRepository {
     void deleteById(Long id);
     void deleteByCardId(Long cardId);
     void deleteByCardIds(List<Long> cardIds);
+    void patch(long offerId, Money price, Instant listedAt);
 
     OfferStats stats(ExpansionExternalId expId, CardNumber number, Instant from, Instant to);
 

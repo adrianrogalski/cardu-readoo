@@ -58,5 +58,8 @@ public class OfferEntity {
         this.priceCurrency = newCurrency;
     }
 
+    public void rescheduleTo(Instant when) { this.listedAt = when; }
+
+
     public void referTo(CardEntity card) { this.card = card; }
 }

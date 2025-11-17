@@ -35,8 +35,10 @@ public interface CardService {
     @Transactional
     int deleteByExpansionAndName(String expExternalId, String cardName);
 
-    record UpsertCardCommand(
-            String expExternalId, String cardNumber, String cardName, String cardRarity
-    ) {}
+    @Transactional
+    void patch(String expExternalId, String cardNumber, PatchCardCommand cmd);
+
+    record UpsertCardCommand(String expExternalId, String cardNumber, String cardName, String cardRarity) {}
+    record PatchCardCommand(String cardName, String cardRarity) {}
 }
 

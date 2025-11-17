@@ -94,4 +94,14 @@ public class OfferApplicationService implements OfferService {
     public void deleteById(Long id) {
         offerRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public void patch(long offerId, PatchOfferCommand cmd) {
+        var money = (cmd != null && (cmd.amount() != null || cmd.currency() != null))
+                ? Money.of(cmd.amount() != null ? cmd.amount() : null, cmd.currency()) : null;
+
+        var listedAt = (cmd != null) ? cmd.listedAt() : null;
+        offerRepository.patch(offerId, money, listedAt);
+    }
 }

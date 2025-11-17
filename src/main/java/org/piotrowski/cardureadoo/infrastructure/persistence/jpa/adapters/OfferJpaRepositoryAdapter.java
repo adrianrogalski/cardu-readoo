@@ -5,6 +5,7 @@ import org.piotrowski.cardureadoo.application.port.out.OfferRepository;
 import org.piotrowski.cardureadoo.domain.model.Offer;
 import org.piotrowski.cardureadoo.domain.model.value.card.CardNumber;
 import org.piotrowski.cardureadoo.domain.model.value.expansion.ExpansionExternalId;
+import org.piotrowski.cardureadoo.domain.model.value.offer.Money;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.entities.CardEntity;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.mapper.OfferMapper;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.repositories.CardJpaRepository;
@@ -88,5 +89,22 @@ public class OfferJpaRepositoryAdapter implements OfferRepository {
     public void deleteByCardIds(List<Long> cardIds) {
         if (cardIds == null || cardIds.isEmpty()) return;
         offerJpa.deleteByCardIds(cardIds);
+    }
+
+    @Override
+    @Transactional
+    public void patch(long offerId, Money price, Instant listedAt) {
+        var oe = offerJpa.findById(offerId)
+                .orElseThrow(() -> new IllegalStateException("Offer not found: " + offerId));
+
+        if (price != null && price.amount() != null) {
+            var currency = price.currency() != null ? price.currency() : oe.getPriceCurrency();
+            oe.changePrice(price.amount(), currency);
+        } else if (price != null && price.currency() != null) {
+            oe.changePrice(oe.getPriceAmount(), price.currency());
+        }
+        if (listedAt != null) {
+            oe.rescheduleTo(listedAt);
+        }
     }
 }

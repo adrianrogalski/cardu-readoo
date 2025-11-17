@@ -91,5 +91,16 @@ public class CardApplicationService implements CardService {
         offerRepository.deleteByCardIds(ids);
         return cardRepository.deleteByIds(ids);
     }
+
+    @Override
+    @Transactional
+    public void patch(String expExternalId, String cardNumber, PatchCardCommand cmd) {
+        var expId = new ExpansionExternalId(expExternalId);
+        var num = new CardNumber(cardNumber);
+        var name = (cmd != null && cmd.cardName() != null) ? new CardName(cmd.cardName()) : null;
+        var rarity = (cmd != null && cmd.cardRarity() != null) ? new CardRarity(cmd.cardRarity()) : null;
+
+        cardRepository.patch(expId, num, name, rarity);
+    }
 }
 

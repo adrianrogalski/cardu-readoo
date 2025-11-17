@@ -84,4 +84,11 @@ public class ExpansionApplicationService implements ExpansionService {
         return total;
     }
 
+    @Override
+    @Transactional
+    public void patch(String externalId, PatchExpansionCommand cmd) {
+        var id = new ExpansionExternalId(externalId);
+        var name = cmd != null && cmd.name() != null ? new ExpansionName(cmd.name()) : null;
+        expansionRepository.patch(id, name);
+    }
 }

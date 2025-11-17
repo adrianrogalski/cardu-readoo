@@ -3,7 +3,9 @@ package org.piotrowski.cardureadoo.infrastructure.persistence.jpa.adapters;
 import lombok.RequiredArgsConstructor;
 import org.piotrowski.cardureadoo.application.port.out.CardRepository;
 import org.piotrowski.cardureadoo.domain.model.Card;
+import org.piotrowski.cardureadoo.domain.model.value.card.CardName;
 import org.piotrowski.cardureadoo.domain.model.value.card.CardNumber;
+import org.piotrowski.cardureadoo.domain.model.value.card.CardRarity;
 import org.piotrowski.cardureadoo.domain.model.value.expansion.ExpansionExternalId;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.mapper.CardMapper;
 import org.piotrowski.cardureadoo.infrastructure.persistence.jpa.repositories.CardJpaRepository;
@@ -114,6 +116,21 @@ public class CardJpaRepositoryAdapter implements CardRepository {
     @Override
     public List<Long> findIdsByExpansion(String expExternalId) {
         return cardJpa.findIdsByExpansionExternalId(expExternalId);
+    }
+
+    @Override
+    @Transactional
+    public void patch(ExpansionExternalId expId, CardNumber cardNumber, CardName cardName, CardRarity cardRarirty) {
+        var ce = cardJpa.findByExpansionExternalIdAndCardNumber(expId.value(), cardNumber.value())
+                .orElseThrow(() -> new IllegalStateException("Card not found: " + expId.value() + " / " + cardNumber.value()));
+
+        if (cardName != null) {
+            ce.renameTo(cardName.value());
+        }
+
+        if (cardRarirty != null) {
+            ce.changeRarityTo(cardRarirty.value());
+        }
     }
 
     private int safePage(int page) { return Math.max(0, page); }

@@ -24,7 +24,10 @@ public interface OfferService {
     @Transactional
     void deleteById(Long id);
 
-    public record AddOfferCommand(
+    @Transactional
+    void patch(long offerId, PatchOfferCommand cmd);
+
+    record AddOfferCommand(
             String expExternalId,
             String cardNumber,
             String amount,
@@ -34,17 +37,7 @@ public interface OfferService {
             String cardName,
             String cardRarity
     ) {}
-
-    public record OfferPointDto(
-            Instant listedAt,
-            BigDecimal amount,
-            String currency
-    ) {}
-
-    public  record OfferStatsDto(
-            BigDecimal min,
-            BigDecimal  max,
-            BigDecimal avg,
-            long count
-    ) {}
+    record PatchOfferCommand(BigDecimal amount, String currency, Instant listedAt) {}
+    record OfferPointDto(Instant listedAt, BigDecimal amount, String currency) {}
+    record OfferStatsDto(BigDecimal min, BigDecimal  max, BigDecimal avg, long count) {}
 }
