@@ -26,12 +26,14 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Configuration
 @EnableMethodSecurity
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
 
     private final UserJpaRepository userRepository;
+    private final Environment env;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -78,7 +81,15 @@ public class SecurityConfig {
                         .frameOptions(f -> f.sameOrigin())
                 )
                 .authorizeHttpRequests(reg -> reg
+                        .requestMatchers(
+                                "/", "/index.html",
+                                "/favicon.ico",
+                                "/assets/**",
+                                "/*.js", "/*.css", "/*.map",
+                                "/robots.txt"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bootstrap/admin").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/users/**").hasRole(UserRole.ADMIN.name())
@@ -94,7 +105,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+
+        List<String> origins = new ArrayList<>();
+        for (int i = 1; ; i++) {
+            String key = "app.allowed.origin-" + i;
+            String val = env.getProperty(key);
+            if (val == null) break;
+            origins.add(val);
+        }
+
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
